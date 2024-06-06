@@ -14,9 +14,9 @@ export class UserService {
     private userModel: typeof User,
   ) {}
 
-  async getUser(loginDto: loginDto) {
+  async getUser(email: string) {
     const user = await this.userModel.findOne({
-      where: { email: loginDto.email },
+      where: { email },
     });
     if (!user) {
       throw new UnauthorizedException('email or password does not match');
