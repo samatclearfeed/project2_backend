@@ -15,7 +15,6 @@ export class UserService {
   ) {}
 
   async getUser(loginDto: loginDto) {
-    // check: if user exists.
     const user = await this.userModel.findOne({
       where: { email: loginDto.email },
     });
@@ -23,12 +22,10 @@ export class UserService {
       throw new UnauthorizedException('email or password does not match');
     }
 
-    // return: `user` if exists.
     return user;
   }
 
   async postUser(userDto: userDto) {
-    // creating a new entry for the user. checking the `unique` constraint as well.
     await this.userModel.create(userDto).catch((error) => {
       if (error.name === 'SequelizeUniqueConstraintError') {
         throw new ConflictException('User already exists');
@@ -36,7 +33,6 @@ export class UserService {
       throw error;
     });
 
-    // return: pointing the end of the function.
     return;
   }
 }

@@ -31,6 +31,7 @@ export class TaskService {
   }
 
   async patchTask(taskId: number, userId: number, taskDto: taskDto) {
+    // check: if task exists.
     const task = await this.taskModel.findOne({
       where: { id: taskId, user_id: userId },
     });
@@ -47,6 +48,8 @@ export class TaskService {
     const tasksDeleted = await this.taskModel.destroy({
       where: { id: taskId, user_id: userId },
     });
+
+    // check: if the task is deleted.
     if (tasksDeleted === 0) {
       throw new NotFoundException('task not found!');
     }

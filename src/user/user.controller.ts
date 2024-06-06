@@ -25,8 +25,8 @@ export class UserController {
     // orverwriting `userDto.password` with the hashed password.
     userDto.password = await bcrypt.hash(userDto.password, 10);
 
-    // storing the user data to DB.
     await this.userService.postUser(userDto);
+
     return {
       message: 'successfully created user!',
     };
@@ -36,7 +36,6 @@ export class UserController {
   @HttpCode(200)
   @UsePipes(new ValidationPipe({ transform: true }))
   async login(@Body() loginDto: loginDto) {
-    // user: storing the `user` if exists.
     const user = await this.userService.getUser(loginDto);
 
     // check: the password recieved with that of the database.
@@ -52,7 +51,6 @@ export class UserController {
     const jwtPayload = { userId: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(jwtPayload);
 
-    // return: message with the generated token.
     return {
       message: 'user authorized!',
       token: accessToken,

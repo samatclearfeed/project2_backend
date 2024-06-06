@@ -6,19 +6,29 @@ import {
   Param,
   Patch,
   Post,
+  Request,
+  UnauthorizedException,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth.guard';
 import { taskDto } from './task.dto';
 import { TaskService } from './task.service';
 
-@Controller('users/:userId/tasks')
+@Controller('tasks')
+@UseGuards(AuthGuard)
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async postTask(@Param('userId') userId: number, @Body() taskDto: taskDto) {
+  async postTask(@Request() request: any, @Body() taskDto: taskDto) {
+    const userId = request.user.userId;
+    if (!userId) {
+      throw new UnauthorizedException('error fetch user profile!');
+    }
+
     await this.taskService.postTask(userId, taskDto);
 
     return {
@@ -27,7 +37,12 @@ export class TaskController {
   }
 
   @Get()
-  async getTasksByUserId(@Param('userId') userId: number) {
+  async getTasksByUserId(@Request() request: any) {
+    const userId = request.user.userId;
+    if (!userId) {
+      throw new UnauthorizedException('error fetch user profile!');
+    }
+
     const tasks = await this.taskService.getTasks(userId);
 
     return {
@@ -37,10 +52,12 @@ export class TaskController {
   }
 
   @Get(':taskId')
-  async getTaskById(
-    @Param('taskId') taskId: number,
-    @Param('userId') userId: number,
-  ) {
+  async getTaskById(@Param('taskId') taskId: number, @Request() request: any) {
+    const userId = request.user.userId;
+    if (!userId) {
+      throw new UnauthorizedException('error fetch user profile!');
+    }
+
     const task = await this.taskService.getTaskById(taskId, userId);
 
     return {
@@ -53,9 +70,14 @@ export class TaskController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async patchTask(
     @Param('taskId') taskId: number,
-    @Param('userId') userId: number,
+    @Request() request: any,
     @Body() taskDto: taskDto,
   ) {
+    const userId = request.user.userId;
+    if (!userId) {
+      throw new UnauthorizedException('error fetch user profile!');
+    }
+
     await this.taskService.patchTask(taskId, userId, taskDto);
 
     return {
@@ -64,10 +86,12 @@ export class TaskController {
   }
 
   @Delete(':taskId')
-  async deleteTask(
-    @Param('taskId') taskId: number,
-    @Param('userId') userId: number,
-  ) {
+  async deleteTask(@Param('taskId') taskId: number, @Request() request: any) {
+    const userId = request.user.userId;
+    if (!userId) {
+      throw new UnauthorizedException('error fetch user profile!');
+    }
+
     await this.taskService.deleteTask(taskId, userId);
 
     return {
